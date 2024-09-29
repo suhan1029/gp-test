@@ -1,0 +1,38 @@
+<!-- templates/register.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <h1 class="header">회원가입</h1>
+    <form method="post">
+        <input type="text" name="user_id" placeholder="아이디" required>
+        <button type="button" id="check-id-btn">아이디 중복 확인</button>
+        <input type="password" name="password" placeholder="비밀번호" required>
+        <input type="email" name="email" placeholder="이메일" required>
+        <input type="hidden" name="id_checked" id="id-checked" value="">
+        <button type="submit">회원가입 완료</button>
+    </form>
+    <p id="id-check-result"></p>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $('#check-id-btn').click(function() {
+        var user_id = $('input[name="user_id"]').val();
+        if (user_id === '') {
+            alert('아이디를 입력해주세요.');
+            return;
+        }
+        $.post('/check_id', {user_id: user_id}, function(data) {
+            if (data === '중복') {
+                $('#id-check-result').text('아이디에 중복이 발생합니다.');
+                $('#id-checked').val('');
+            } else {
+                $('#id-check-result').text('사용 가능한 아이디입니다.');
+                $('#id-checked').val('checked');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+<!-- templates/result.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <h1 class="header">Prediction Result</h1>
+    <p class="subheader">Your personal color is:</p>
+    <div class="prediction">{{ prediction }}</div>
+    <a href="/personal_color" class="upload-button">Classify another image</a>
+</div>
+{% endblock %}

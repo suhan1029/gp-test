@@ -1,0 +1,30 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Four Color</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="header-container">
+        <div class="logo"><a href="/">Four Color</a></div>
+        <div class="menu">
+            <a href="#">Personal Color</a>
+            <a href="#">Face Shape</a>
+            <a href="#">Analysis</a>
+            {% if user_id %}
+                <a href="/logout">로그아웃</a>
+            {% else %}
+                <a href="/login">로그인</a>
+                <a href="/register">회원가입</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% block content %}
+    <!-- 각 페이지의 내용이 여기에 삽입됩니다. -->
+    {% endblock %}
+</body>
+</html>
