@@ -1,0 +1,172 @@
+/* static/css/style.css */
+
+/* 공통 스타일 */
+body {
+    margin: 0;
+    padding: 0 40px;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(45deg, rgba(255,255,0,0.5), rgba(0,255,255,0.5), rgba(255,0,255,0.5));
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
+    min-height: 100vh;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.logo {
+    font-size: 35px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-left: 0;
+}
+
+.logo a {
+    text-decoration: none;
+    color: black;
+}
+
+.menu {
+    display: flex;
+    gap: 22px;
+}
+
+.menu a {
+    text-decoration: none;
+    font-size: 25px;
+    color: black;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.menu a:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.content {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.header {
+    font-size: 70px;
+    margin: 0;
+    font-weight: bold;
+}
+
+.subheader {
+    font-size: 30px;
+    margin-top: 40px;
+}
+
+.horizontal-line {
+    width: 100%;
+    height: 1px;
+    background-color: black;
+    margin-bottom: 70px;
+}
+
+.auth-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.auth-buttons button, .upload-button {
+    font-size: 20px;
+    padding: 15px 30px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #000;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+.auth-buttons button:hover, .upload-button:hover {
+    background-color: #333;
+}
+
+.file-input-label {
+    font-size: 18px;
+    padding: 15px 30px;
+    background-color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+    display: inline-block;
+}
+
+.file-input-label:hover {
+    background-color: #333;
+}
+
+.file-input {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+#file-name {
+    margin-top: 50px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    display: block;
+}
+
+#preview {
+    margin-top: 15px;
+    max-width: 30%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.prediction {
+    font-size: 70px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 50px;
+    color: #292890;
+}
+
+input[type="text"], input[type="password"], input[type="email"] {
+    font-size: 18px;
+    padding: 10px;
+    margin: 10px;
+    width: 250px;
+}
+
+button[type="submit"], button#check-id-btn {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #000;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover, button#check-id-btn:hover {
+    background-color: #333;
+}
