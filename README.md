@@ -1,4 +1,6 @@
 # gp-test
+졸업작품(graduation project)를 간단히 만들고 테스트한 자료입니다.
+
 
 ## MySQL DB 생성
 
