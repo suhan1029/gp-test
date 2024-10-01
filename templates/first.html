@@ -5,14 +5,14 @@
 <div class="content">
     <div class="horizontal-line"></div>
     {% if user_id %}
-        <h1 class="header">Personal Color Diagnostics</h1>
+        <h1 class="header" style="margin-top: 200px;">Personal Color Diagnostics</h1>
         <h1 class="subheader">{{ user_id }}님, 환영합니다!</h1>
         <div class="auth-buttons">
             <button onclick="location.href='/personal_color'">퍼스널 컬러 진단</button>
             <button onclick="location.href='/logout'">로그아웃</button>
         </div>
     {% else %}
-        <h1 class="header">Personal Color Diagnostics</h1>
+        <h1 class="header" style="margin-top: 200px;">Personal Color Diagnostics</h1>
         <p class="subheader">Facial Diagnosis</p>
         <div class="auth-buttons">
             <button onclick="location.href='/login'">로그인</button>
