@@ -1,0 +1,54 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <h1 class="header">Personal Color Diagnosis</h1>
+    <p class="subheader">Capture an image using your webcam</p>
+    <div>
+        <video id="video" width="640" height="480" autoplay></video>
+        <button id="capture-button">Capture Image</button>
+        <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    </div>
+    <br>
+    <form id="upload-form" action="/personal_color" method="post" enctype="multipart/form-data" onsubmit="return checkImageUpload(event)">
+        <input type="hidden" id="image-data" name="image_data">
+        <input type="submit" value="Upload Captured Image to AI" class="upload-button">
+    </form>
+</div>
+
+<script>
+    // Access the user's webcam
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureButton = document.getElementById('capture-button');
+    const imageDataInput = document.getElementById('image-data');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            video.srcObject = stream;
+        })
+        .catch(function(err) {
+            console.log("An error occurred: " + err);
+        });
+
+    // Capture an image from the video feed and display it on the canvas
+    captureButton.addEventListener('click', function() {
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageDataURL = canvas.toDataURL('image/png'); // Get base64 image data
+        imageDataInput.value = imageDataURL;
+    });
+
+    function checkImageUpload(event) {
+        const imageData = imageDataInput.value;
+        if (!imageData) {
+            event.preventDefault();
+            alert('Please capture an image first.');
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock %}
