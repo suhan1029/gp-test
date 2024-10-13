@@ -145,7 +145,6 @@ body {
     font-weight: bold;
     margin-top: 10px;
     margin-bottom: 50px;
-    color: #292890;
 }
 
 input[type="text"], input[type="password"], input[type="email"] {
@@ -169,4 +168,125 @@ button[type="submit"], button#check-id-btn {
 
 button[type="submit"]:hover, button#check-id-btn:hover {
     background-color: #333;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 글자 색상을 나타내는 클래스 추가 */
+.fall-color {
+    color: brown;
+}
+
+.spring-color {
+    color: yellow;
+}
+
+.summer-color {
+    color: skyblue;
+}
+
+.winter-color {
+    color: blue;
+}
+
+
+.form-group {
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group input, .form-group button {
+    width: 250px;
+    max-width: 100%;
+    margin-bottom: 5px;
+}
+
+#check-id-btn {
+    margin-top: 10px;
+}
+
+.prediction-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 40px;
+}
+
+.prediction-text {
+    font-size: 70px;
+    font-weight: bold;
+}
+
+.prediction-image {
+    width: 170px;
+    margin-left: 40px;
+    margin-right: 40px;
+    height: auto;
+}
+
+/* 생성된 이미지 스타일 */
+.generated-image {
+    display: block;
+    margin: 40px auto;
+    max-width: 700px;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+}
+
+/* 버튼 컨테이너 스타일 추가 */
+.button-container {
+    text-align: center;
+    margin-top: 80px; /* 버튼을 더 아래로 내리기 위한 마진 */
+}
+
+.upload-button {
+    display: inline-block; /* 인라인 블록 요소로 변경 */
+    font-size: 20px;
+    padding: 15px 30px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #000;
+    color: #fff;
+    transition: background-color 0.3s;
+    text-decoration: none;
+}
+
+.upload-button:hover {
+    background-color: #333;
+}
+
+.history-table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+.history-table th, .history-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+.history-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.history-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.history-table tr:hover {
+    background-color: #e2e2e2;
 }
