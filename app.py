@@ -3,8 +3,11 @@ import mysql.connector
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
+from dotenv import load_dotenv
 import os
 import shutil
+import openai
+import logging
 
 # AI 모델 관련 임포트
 from PIL import Image
@@ -12,6 +15,10 @@ import torch
 import torchvision.transforms as transforms
 import timm
 import torch.nn as nn
+
+load_dotenv()
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 app.secret_key = 'suhan1029'  # 보안을 위해 실제 서비스에서는 환경 변수로 관리하세요.
@@ -123,6 +130,29 @@ def check_id():
     else:
         return '사용 가능'
 
+# 퍼스널 컬러 소개 페이지
+@app.route('/about_personal_color')
+def about_personal_color():
+    user_id = session.get('user_id')
+    return render_template('about_personal_color.html', user_id=user_id)
+
+# AI 소개 페이지
+@app.route('/about_our_ai')
+def about_our_ai():
+    user_id = session.get('user_id')
+    return render_template('about_our_ai.html', user_id=user_id)
+
+# 히스토리 페이지
+@app.route('/history')
+@login_required
+def history():
+    cursor = db.cursor(dictionary=True)
+    sql = "SELECT prediction, prediction_time FROM predictions WHERE user_id = %s ORDER BY prediction_time DESC"
+    cursor.execute(sql, (session['user_id'],))
+    history_records = cursor.fetchall()
+    cursor.close()
+    return render_template('history.html', user_id=session.get('user_id'), history_records=history_records)
+
 # 로그인 페이지
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -166,7 +196,39 @@ def personal_color():
             image = Image.open(file).convert('RGB')
             image_tensor = preprocess_image(image)
             prediction = predict(image_tensor, model)
-            return render_template('result.html', prediction=prediction, user_id=session.get('user_id'))
+
+            # 예측 결과를 데이터베이스에 저장
+            cursor = db.cursor()
+            sql = "INSERT INTO predictions (user_id, prediction, prediction_time) VALUES (%s, %s, NOW())"
+            cursor.execute(sql, (session['user_id'], prediction))
+            db.commit()
+            cursor.close()
+
+            # OpenAI API를 사용하여 이미지 생성
+            if prediction == 'winter':
+                prompt = '퍼스널 컬러가 겨울인 남자, 여자가 1명씩 있는데, 이 두 사람이 해당 컬러에 맞는 옷을 입은 모습을 사실적으로 그려줘. 사람이 활기차보였으면 좋겠어. 사람의 전신이 다 보이게끔 그려줘. 사람이 조금이라도 보이지 않는 부분은 없어야해. 사람 뒤의 배경은 그 사람의 옷과 어울리는 그라데이션 느낌의 단색으로 해줘. 퍼스널 컬러를 설명하는 파레트는 그림에 없었으면 좋겠어. 퍼스널 컬러를 설명하는 글자는 그림에 없었으면 좋겠어.'
+            elif prediction == 'fall':
+                prompt = '퍼스널 컬러가 가을인 남자, 여자가 1명씩 있는데, 이 두 사람이 해당 컬러에 맞는 옷을 입은 모습을 사실적으로 그려줘. 사람이 활기차보였으면 좋겠어. 사람의 전신이 다 보이게끔 그려줘. 사람이 조금이라도 보이지 않는 부분은 없어야해. 사람 뒤의 배경은 그 사람의 옷과 어울리는 그라데이션 느낌의 단색으로 해줘. 퍼스널 컬러를 설명하는 파레트는 그림에 없었으면 좋겠어. 퍼스널 컬러를 설명하는 글자는 그림에 없었으면 좋겠어.'
+            elif prediction == 'spring':
+                prompt = '퍼스널 컬러가 봄인 남자, 여자가 1명씩 있는데, 이 두 사람이 해당 컬러에 맞는 옷을 입은 모습을 사실적으로 그려줘. 사람이 활기차보였으면 좋겠어. 사람의 전신이 다 보이게끔 그려줘. 사람이 조금이라도 보이지 않는 부분은 없어야해. 사람 뒤의 배경은 그 사람의 옷과 어울리는 그라데이션 느낌의 단색으로 해줘. 퍼스널 컬러를 설명하는 파레트는 그림에 없었으면 좋겠어. 퍼스널 컬러를 설명하는 글자는 그림에 없었으면 좋겠어.'
+            elif prediction == 'summer':
+                prompt = '퍼스널 컬러가 여름인 남자, 여자가 1명씩 있는데, 이 두 사람이 해당 컬러에 맞는 옷을 입은 모습을 사실적으로 그려줘. 사람이 활기차보였으면 좋겠어. 사람의 전신이 다 보이게끔 그려줘. 사람이 조금이라도 보이지 않는 부분은 없어야해. 사람 뒤의 배경은 그 사람의 옷과 어울리는 그라데이션 느낌의 단색으로 해줘. 퍼스널 컬러를 설명하는 파레트는 그림에 없었으면 좋겠어. 퍼스널 컬러를 설명하는 글자는 그림에 없었으면 좋겠어.'
+            
+            try:
+                response = openai.images.generate(
+                    prompt=prompt,
+                    n=1,
+                    size="1024x1024"
+                )
+                generated_image_url = response.data[0].url
+
+            except Exception as e:
+                error_message = f'이미지 생성 중 오류가 발생했습니다: {str(e)}'
+                flash(error_message)
+                logging.error(error_message)
+                generated_image_url = None
+            
+            return render_template('result.html', prediction=prediction, user_id=session.get('user_id'), generated_image_url=generated_image_url)
         else:
             flash('허용되지 않는 파일 형식입니다.')
             return redirect(request.url)
