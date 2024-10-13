@@ -10,6 +10,14 @@
 
 - OpenAI API를 활용하여 이미지 생성 기능을 구현하였습니다.
 
+- Python openai 라이브러리 다운 방법
+  ```
+  pip install openai
+  ```
+  ```
+  pip install --upgrade openai
+  ```
+
 - API 키를 생성하기 위해서는 ChatGPT가 아닌 OpenAI 사이트로 들어가야 합니다.
 
 - API 키는 보안을 위해 환경변수로 감춰두었습니다.
