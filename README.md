@@ -19,19 +19,12 @@
     ```
 
 - *망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.*
-- 참고한 사이트
-  ```
-  https://platform.openai.com/docs/guides/images/usage
-  ```
+- 참고한 사이트 - https://platform.openai.com/docs/guides/images/usage
 
 
 ### api 키 생성하는 방법
 
-- 다음 하단의 사이트 접속
-  ```
-  https://platform.openai.com/docs/overview
-  ```
-- 화면 상단 Dashboard 클릭
+- 사이트 접속 - https://platform.openai.com/docs/overview
 - 화면 좌측 API keys 클릭
 - API 생성
     
