@@ -18,7 +18,7 @@
     OPENAI_API_KEY=your_api_key
     ```
 
-- *망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.*
+- ~~망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.~~
 - 참고한 사이트 - https://platform.openai.com/docs/guides/images/usage
 
 
