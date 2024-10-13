@@ -19,6 +19,10 @@
     ```
 
 - *망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.*
+- 참고한 사이트
+  ```
+  https://platform.openai.com/docs/guides/images/usage
+  ```
 
 
 ### api 키 생성하는 방법
