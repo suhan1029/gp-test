@@ -1,0 +1,31 @@
+<!-- templates/about_our_ai.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <h1 class="header" style="margin-top: 50px;">About Our AI</h1>
+    <p class="subheader">How does our AI work?</p>
+    <p id="description" class="description">
+        <!-- 설명 내용은 빈 상태로 두고 JavaScript로 채웁니다 -->
+    </p>
+</div>
+
+<script>
+    const text = `AI에 대한 설명`;
+    let index = 0;
+    const speed = 50; // 글자 표시 속도 (밀리초)
+
+    function typeWriter() {
+        if (index < text.length) {
+            document.getElementById("description").innerHTML += text.charAt(index);
+            index++;
+            setTimeout(typeWriter, speed);
+        }
+    }
+
+    window.onload = function() {
+        typeWriter();
+    };
+</script>
+{% endblock %}

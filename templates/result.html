@@ -6,7 +6,20 @@
     <div class="horizontal-line"></div>
     <h1 class="header">Prediction Result</h1>
     <p class="subheader">Your personal color is:</p>
-    <div class="prediction">{{ prediction }}</div>
-    <a href="/personal_color" class="upload-button">Classify another image</a>
+    <div class="prediction-container">
+        <img src="{{ url_for('static', filename='images/' + prediction + '.jpg') }}" alt="{{ prediction }}" class="prediction-image">
+        <div class="prediction-text {{ prediction }}-color">
+            {{ prediction }}
+        </div>
+        <img src="{{ url_for('static', filename='images/' + prediction + '.jpg') }}" alt="{{ prediction }}" class="prediction-image">
+    </div>
+    <!-- OpenAI API로 생성된 이미지 표시 -->
+    {% if generated_image_url %}
+        <img src="{{ generated_image_url }}" alt="Generated Image" class="generated-image">
+    {% endif %}
+    
+    <div class="button-container">
+        <a href="/personal_color" class="upload-button">Classify another image</a>
+    </div>
 </div>
 {% endblock %}
