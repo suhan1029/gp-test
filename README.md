@@ -10,17 +10,18 @@
 
 - OpenAI API를 활용하여 이미지 생성 기능을 구현하였습니다.
 
-- api 키를 생성하기 위해서는 ChatGPT가 아닌 OpenAI 사이트로 들어가야 합니다.
+- API 키를 생성하기 위해서는 ChatGPT가 아닌 OpenAI 사이트로 들어가야 합니다.
 
-- api 키는 보안을 위해 환경변수로 감춰두었습니다.
-  - api 키는 작업 폴더내에 '.env'라는 파일을 만들고 다음과 같은 내용을 입력하면 됩니다.
+- API 키는 보안을 위해 환경변수로 감춰두었습니다.
+  - API 키는 작업 폴더내에 '.env'라는 파일을 만들고 다음과 같은 내용을 입력하면 됩니다.
     ```
     OPENAI_API_KEY=your_api_key
     ```
 
-- ~~망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.~~
-- 참고한 사이트 - https://platform.openai.com/docs/guides/images/usage
 
+- 참고한 사이트 - https://platform.openai.com/docs/guides/images/usage
+- ~~현재 API가 입력한 프롬프트를 가볍게 무시하고 계십니다.~~
+- ~~망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.~~
 
 ### api 키 생성하는 방법
 
