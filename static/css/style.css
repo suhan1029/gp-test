@@ -1,285 +1,430 @@
-/* static/css/style.css */
+/* 스타일 초기화 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-/* 공통 스타일 */
+/* 기본 폰트 및 배경 설정 */
 body {
     margin: 0;
     padding: 0 40px;
     font-family: Arial, sans-serif;
-    background: linear-gradient(45deg, rgba(255,255,0,0.5), rgba(0,255,255,0.5), rgba(255,0,255,0.5));
-    background-size: 400% 400%;
-    animation: gradientAnimation 10s ease infinite;
+    background-color: #ffffff;
+    color: #333;
     min-height: 100vh;
 }
 
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
+/* 헤더 스타일 */
 .header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0;
+    background-color: #ffffff;
+    padding: 10px 20px;
 }
 
-.logo {
-    font-size: 35px;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    margin-left: 0;
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .logo a {
-    text-decoration: none;
-    color: black;
-}
-
-.menu {
     display: flex;
-    gap: 22px;
-}
-
-.menu a {
+    align-items: center;
     text-decoration: none;
-    font-size: 25px;
-    color: black;
+    color: #000;
+    font-size: 35px;
     font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
 }
 
-.menu a:hover {
-    background-color: rgba(255, 255, 255, 0.5);
+.home-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
 }
 
-.content {
-    text-align: center;
-    margin-top: 10px;
+/* 메뉴 스타일 */
+.header-container .header-content .menu .menu-item {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #000;
+    font-size: 25px; /* 글자 크기 증가 */
+    font-weight: bold;
 }
 
+.header-container .header-content .menu .menu-item:hover {
+    color: #007BFF;
+}
+
+/* 헤더 텍스트 스타일 */
 .header {
     font-size: 70px;
-    margin: 0;
-    font-weight: bold;
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
 }
 
 .subheader {
-    font-size: 30px;
-    margin-top: 40px;
+    font-size: 25px;
+    text-align: center;
+    margin-bottom: 30px;
 }
 
+/* 가로 라인 */
 .horizontal-line {
     width: 100%;
     height: 1px;
-    background-color: black;
-    margin-bottom: 70px;
+    background-color: #ccc;
+    margin-top: 7px;
+    margin-bottom: 20px;
 }
 
-.auth-buttons {
-    margin-top: 20px;
+/* 메인 컨테이너 스타일 */
+.main-container {
     display: flex;
-    justify-content: center;
-    gap: 20px;
+    align-items: stretch;
+    margin-top: 50px;
 }
 
-.auth-buttons button, .upload-button {
-    font-size: 20px;
-    padding: 15px 30px;
+/* 왼쪽 섹션 스타일 */
+.left-section {
+    flex: 2;
+    padding-right: 20px;
+}
+
+/* 수직선 스타일 */
+.vertical-line {
+    width: 1px;
+    background-color: #ccc;
+    margin: 0 20px;
+}
+
+/* 오른쪽 섹션 스타일 */
+.right-section {
+    flex: 8;
+    padding-left: 20px;
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media screen and (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+    }
+    .vertical-line {
+        display: none;
+    }
+    .left-section, .right-section {
+        flex: 1 1 100%;
+        padding: 0;
+    }
+    .button-and-image-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .image-preview-container {
+        margin-left: 0;
+        margin-top: 20px;
+    }
+}
+
+/* 버튼 스타일 */
+.auth-buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.auth-buttons button,
+.upload-button,
+.file-input-label,
+button[type="submit"],
+button#check-id-btn,
+#start-camera,
+#capture-photo,
+.chat-content button {
+    font-size: 16px;
+    padding: 12px 24px;
     cursor: pointer;
     border: none;
     border-radius: 5px;
-    background-color: #000;
+    background-color: #007BFF;
     color: #fff;
     transition: background-color 0.3s;
+    margin-top: 10px;
 }
 
-.auth-buttons button:hover, .upload-button:hover {
-    background-color: #333;
+.auth-buttons button:hover,
+.upload-button:hover,
+.file-input-label:hover,
+button[type="submit"]:hover,
+button#check-id-btn:hover,
+#start-camera:hover,
+#capture-photo:hover,
+.chat-content button:hover {
+    background-color: #0056b3;
 }
 
-.file-input-label {
-    font-size: 18px;
-    padding: 15px 30px;
-    background-color: #000;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    color: #fff;
-    display: inline-block;
+.auth-buttons button {
+    margin: 5px;
 }
 
-.file-input-label:hover {
-    background-color: #333;
-}
-
-.file-input {
-    opacity: 0;
-    position: absolute;
-    z-index: -1;
-}
-
-#file-name {
-    margin-top: 50px;
+/* 입력 필드 스타일 */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+    width: 100%;
+    padding: 12px;
     margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.chat-content textarea {
+    flex: 1;
+    padding: 10px;
+    resize: none;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* 파일 입력 숨기기 */
+.file-input {
+    display: none;
+}
+
+/* 이미지 미리보기 컨테이너 */
+.image-preview-container {
+    width: 500px;
+    height: 500px;
+    border: 1px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
     font-size: 16px;
-    display: block;
+    text-align: center;
+    position: relative;
 }
 
 #preview {
-    margin-top: 15px;
-    max-width: 30%;
-    height: auto;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 5px;
-    display: none;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.prediction {
-    font-size: 70px;
-    font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: 50px;
-}
-
-input[type="text"], input[type="password"], input[type="email"] {
-    font-size: 18px;
-    padding: 10px;
-    margin: 10px;
-    width: 250px;
-}
-
-button[type="submit"], button#check-id-btn {
-    font-size: 18px;
-    padding: 10px 20px;
-    margin: 10px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #000;
-    color: #fff;
-    transition: background-color 0.3s;
-}
-
-button[type="submit"]:hover, button#check-id-btn:hover {
-    background-color: #333;
-}
-
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* 글자 색상을 나타내는 클래스 추가 */
-.fall-color {
-    color: brown;
-}
-
-.spring-color {
-    color: yellow;
-}
-
-.summer-color {
-    color: skyblue;
-}
-
-.winter-color {
-    color: blue;
-}
-
-
-.form-group {
-    margin-bottom: 15px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.form-group input, .form-group button {
-    width: 250px;
     max-width: 100%;
-    margin-bottom: 5px;
+    max-height: 100%;
+    display: none;
+    position: absolute;
 }
 
-#check-id-btn {
-    margin-top: 10px;
+/* 미리보기 텍스트 */
+#preview-text {
+    position: absolute;
 }
 
-.prediction-container {
+/* 카메라 컨테이너 스타일 */
+#camera-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-    gap: 40px;
 }
 
-.prediction-text {
-    font-size: 70px;
-    font-weight: bold;
+#video {
+    margin-bottom: 10px;
 }
 
-.prediction-image {
-    width: 170px;
-    margin-left: 40px;
-    margin-right: 40px;
-    height: auto;
+#capture-photo {
+    margin-top: -40px; /* 버튼을 위로 올리기 위해 음수 값 사용 */
+    margin-bottom: 10px;
 }
 
-/* 생성된 이미지 스타일 */
-.generated-image {
-    display: block;
-    margin: 40px auto;
-    max-width: 700px;
-    max-height: 400px;
-    width: auto;
-    height: auto;
+/* 메시지 스타일 */
+.message {
+    margin-bottom: 15px;
 }
 
-/* 버튼 컨테이너 스타일 추가 */
-.button-container {
-    text-align: center;
-    margin-top: 80px; /* 버튼을 더 아래로 내리기 위한 마진 */
+.message.user {
+    text-align: right;
 }
 
-.upload-button {
-    display: inline-block; /* 인라인 블록 요소로 변경 */
-    font-size: 20px;
-    padding: 15px 30px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #000;
+.message.user p {
+    background-color: #007BFF;
     color: #fff;
-    transition: background-color 0.3s;
+}
+
+.message.assistant {
+    text-align: left;
+}
+
+.message.assistant .assistant-message {
+    background-color: #F1F0F0;
+    color: #000;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.message.assistant .assistant-message p {
+    margin: 0;
+}
+
+/* Style for code blocks */
+.assistant-message code {
+    background-color: #eaeaea;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.assistant-message pre {
+    background-color: #eaeaea;
+    padding: 10px;
+    border-radius: 4px;
+    overflow: auto;
+    font-family: monospace;
+}
+
+.message.assistant .assistant-message code {
+    background-color: #eaeaea;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.message.assistant .assistant-message pre {
+    background-color: #eaeaea;
+    padding: 10px;
+    border-radius: 4px;
+    overflow: auto;
+    font-family: monospace;
+}
+
+.message p, .message div {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.message.user p {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+.message.assistant p {
+    background-color: #F1F0F0;
+    color: #000;
+}
+
+.messages {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 채팅 레이아웃 */
+.chat-container {
+    display: flex;
+    height: calc(100vh - 100px);
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #f5f5f5;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.conversation-list {
+    list-style: none;
+    padding: 0;
+}
+
+.conversation-list li {
+    margin-bottom: 10px;
+}
+
+.conversation-list a {
     text-decoration: none;
+    color: #333;
 }
 
-.upload-button:hover {
-    background-color: #333;
+.conversation-list a:hover {
+    text-decoration: underline;
 }
 
+.chat-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+/* 채팅 입력 영역 */
+.chat-form .input-container {
+    display: flex;
+    align-items: center;
+}
+
+.chat-form textarea {
+    flex: 1;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    resize: none;
+    margin-right: 10px;
+    height: 50px;
+    box-sizing: border-box;
+}
+
+.chat-form textarea::placeholder {
+    font-style: italic;
+    color: #999;
+    font-size: 14px;
+}
+
+.chat-form button {
+    font-size: 16px;
+    height: 50px;
+    padding: 0 20px;
+    border-radius: 20px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    margin-bottom: 30px;
+}
+
+.chat-form button:hover {
+    background-color: #0056b3;
+}
+
+/* 테이블 스타일 */
 .history-table {
-    width: 80%;
+    width: 80%; /* 테이블 너비를 줄임 */
     margin: 0 auto;
     border-collapse: collapse;
     margin-top: 30px;
+    font-size: 14px;
 }
 
-.history-table th, .history-table td {
+.history-table th,
+.history-table td {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: center;
+    vertical-align: middle;
 }
 
 .history-table th {
-    background-color: #f2f2f2;
+    background-color: #007BFF;
+    color: #fff;
     font-weight: bold;
 }
 
@@ -288,5 +433,158 @@ button[type="submit"]:hover, button#check-id-btn:hover {
 }
 
 .history-table tr:hover {
-    background-color: #e2e2e2;
+    background-color: #f1f1f1;
+}
+
+.history-image {
+    width: 100px;
+    height: auto;
+    border-radius: 5px;
+}
+
+/* 예측 결과 컨테이너 */
+.prediction-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* 예측 결과 텍스트 스타일 */
+.prediction-text {
+    font-size: 48px;
+    text-align: center;
+    margin: 0 40px;
+}
+
+/* 퍼스널 컬러에 따른 글자색 설정 */
+.prediction-text.spring-color {
+    color: #FF8C00;
+}
+
+.prediction-text.summer-color {
+    color: #1E90FF;
+}
+
+.prediction-text.fall-color {
+    color: #8B4513;
+}
+
+.prediction-text.winter-color {
+    color: #4B0082;
+}
+
+/* 예측 이미지 스타일 */
+.prediction-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 20px;
+}
+
+/* 버튼 컨테이너 */
+.button-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.upload-button.no-underline {
+    text-decoration: none;
+}
+
+/* 플래시 메시지 스타일 */
+.flash-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+/* 폼 컨테이너 스타일 */
+.form-container {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"],
+.auth-form input[type="email"],
+.auth-form button {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+#check-id-btn {
+    width: auto;
+    margin-top: 10px;
+}
+
+#id-check-result {
+    margin-top: 10px;
+}
+
+/* 기존 메뉴 스타일 복구 */
+.menu a {
+    text-decoration: none;
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-size: 36px; /* 글자 크기 증가 */
+    font-weight: bold;
+}
+
+.menu a:hover {
+    color: #007BFF;
+}
+
+/* 버튼 그룹 및 이미지 미리보기 컨테이너 */
+.button-and-image-container {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-input-label,
+.upload-button {
+    width: 200px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* 미디어 쿼리 */
+@media screen and (max-width: 768px) {
+    .button-and-image-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-preview-container {
+        margin-left: 0;
+        margin-top: 20px;
+    }
+}
+
+/* 로딩 스피너 스타일 */
+.spinner {
+    margin: 10px auto;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ccc;
+    border-top: 4px solid #007BFF;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
