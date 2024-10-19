@@ -6,9 +6,9 @@
 
 <br>
 
-## 생성형 이미지 관련
+## 텍스트 생성 관련
 
-- OpenAI API를 활용하여 이미지 생성 기능을 구현하였습니다.
+- OpenAI API를 활용하여 텍스트 생성 기능을 구현하였습니다.
 
 - Python openai 라이브러리 다운 방법
   ```
@@ -20,29 +20,31 @@
 
 - API 키를 생성하기 위해서는 ChatGPT가 아닌 OpenAI 사이트로 들어가야 합니다.
 
-- API 키는 보안을 위해 환경변수로 감춰두었습니다.
-  - API 키는 작업 폴더내에 '.env'라는 파일을 만들고 다음과 같은 내용을 입력하면 됩니다.
-    ```
-    OPENAI_API_KEY=your_api_key
-    ```
-
-
 - 참고한 사이트 - https://platform.openai.com/docs/guides/images/usage
-- ~~현재 API가 입력한 프롬프트를 가볍게 무시하고 계십니다.~~
 - ~~망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.~~
+- ~~o1-preview 피셜 GPT-4o는 존재하지 않습니다~~
 
 ### api 키 생성하는 방법
 
 - 사이트 접속 - https://platform.openai.com/docs/overview
 - 화면 좌측 API keys 클릭
 - API 생성
-    
 
-<br>
 
-## OpenCV 관련
+### 보안 관련
 
-- OpenCV 관련 기능들을 기존의 app.py에 합쳐놓았습니다.
+- 보안 문제가 있는 내용은 환경 변수로 감춰두었습니다.
+
+- .env 파일을 만들고 그 안에 아래와 같은 코드를 넣으면 됩니다.
+  ```
+  OPENAI_API_KEY=your_openai_api_key
+  SECRET_KEY=your_flask_secret_key
+  DB_HOST=your_database_host
+  DB_USER=your_database_user
+  DB_PASSWORD=your_database_password
+  DB_NAME=your_database_name
+  ```
+
 
 <br>
 
@@ -74,6 +76,33 @@
       prediction_time DATETIME,
       FOREIGN KEY (user_id) REFERENCES users(user_id)
   );
+  ```
+  ```
+  CREATE TABLE conversations (
+    conversation_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(255),
+    conversation_name VARCHAR(255),
+    created_at DATETIME DEFAULT NOW()
+  );
+  ```
+  ```
+  CREATE TABLE messages (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT,
+    sender VARCHAR(50), -- 'user' 또는 'assistant'
+    message TEXT,
+    created_at DATETIME DEFAULT NOW(),
+    FOREIGN KEY (conversation_id) REFERENCES conversations(conversation_id)
+  );
+  ```
+  ```
+  ALTER TABLE predictions ADD COLUMN img VARCHAR(255);
+  ```
+  ```
+  ALTER TABLE predictions ADD COLUMN explains TEXT;
+  ```
+  ```
+  ALTER TABLE messages ADD COLUMN raw_markdown TEXT;
   ```
 
 
