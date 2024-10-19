@@ -4,27 +4,50 @@
 {% block content %}
 <div class="content">
     <div class="horizontal-line"></div>
-    <h1 class="header">Personal Color Diagnosis</h1>
-    <p class="subheader">Upload your image or take a photo for diagnosis</p>
-    <form id="upload-form" action="/personal_color" method="post" enctype="multipart/form-data" onsubmit="return checkFileUpload(event)">
-        <label for="file-input" class="file-input-label">
-            Choose an image
-        </label>
-        <input type="file" id="file-input" name="file" accept="image/*" onchange="previewFile(event)" class="file-input">
-        <span id="file-name"></span>
-        <br>
-        <button type="button" id="start-camera" class="file-input-label">사진찍기</button>
-        <div id="camera-container" style="display:none;">
-            <video id="video" width="640" height="480" autoplay></video>
-            <button type="button" id="capture-photo">Capture Photo</button>
+    <div class="main-container">
+        <!-- 왼쪽 섹션: AI 설명 -->
+        <div class="left-section">
+            <h2>퍼스널 컬러 분류 AI</h2>
+            <br>
+            <p>
+                퍼스널 컬러 이미지를 학습한 EfficientNet-B4 AI 모델이 당신의 퍼스널 컬러를 분류합니다. 사진을 업로드하거나 촬영하여 당신의 퍼스널 컬러를 알아보세요!
+            </p>
         </div>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <img id="preview">
-        <br>
-        <input type="submit" value="Upload Image to AI" class="upload-button" style="margin-top: 20px;">
-    </form>
+        <!-- 수직선 -->
+        <div class="vertical-line"></div>
+        <!-- 오른쪽 섹션: 이미지 업로드 폼 -->
+        <div class="right-section">
+            <h1 class="header">Personal Color Diagnosis</h1>
+            <p class="subheader">Upload your image or take a photo for diagnosis</p>
+            <form id="upload-form" action="/personal_color" method="post" enctype="multipart/form-data" onsubmit="return checkFileUpload(event)">
+                <div class="button-and-image-container">
+                    <div class="button-group">
+                        <label for="file-input" class="file-input-label">
+                            Choose an image
+                        </label>
+                        <button type="button" id="start-camera" class="file-input-label">사진 찍기</button>
+                        <button type="submit" class="upload-button">진단하기</button>
+                    </div>
+                    <div class="image-preview-container">
+                        <!-- 이미지가 없을 때는 이 div를 표시 -->
+                        <div id="preview-text">이곳에 선택된 이미지가 보여집니다</div>
+                        <!-- 이미지가 선택되면 이 img 태그를 표시 -->
+                        <img id="preview" src="#" alt="Image Preview" style="display: none;">
+                    </div>
+                </div>
+                <input type="file" id="file-input" name="file" accept="image/*" onchange="previewFile(event)" class="file-input">
+                <span id="file-name"></span>
+                <div id="camera-container" style="display:none;">
+                    <video id="video" width="640" height="480" autoplay></video>
+                    <button type="button" id="capture-photo">Capture Photo</button>
+                </div>
+                <canvas id="canvas" style="display:none;"></canvas>
+            </form>
+        </div>
+    </div>
 </div>
 
+<!-- JavaScript 코드 -->
 <script>
     let video = null;
     let canvas = null;
@@ -114,16 +137,24 @@
 
     function previewFile(event) {
         const input = event.target;
-        const fileName = input.files[0].name;
-        document.getElementById('file-name').textContent = `Selected file: ${fileName}`;
+        const preview = document.getElementById('preview');
+        const previewText = document.getElementById('preview-text');
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            document.getElementById('file-name').textContent = `Selected file: ${fileName}`;
 
-        const reader = new FileReader();
-        reader.onload = function(){
-            const preview = document.getElementById('preview');
-            preview.src = reader.result;
-            preview.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = function(){
+                preview.src = reader.result;
+                preview.style.display = 'block';
+                previewText.style.display = 'none'; // 텍스트 숨김
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = "#";
+            preview.style.display = 'none';
+            previewText.style.display = 'block'; // 텍스트 표시
         }
-        reader.readAsDataURL(input.files[0]);
     }
 
     function checkFileUpload(event) {
@@ -132,7 +163,7 @@
             event.preventDefault(); // 폼 제출을 막음
             alert('파일을 선택해주세요.');
             return false;
-        } 
+        }
         return true;
     }
 </script>

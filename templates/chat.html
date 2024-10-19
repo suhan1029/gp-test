@@ -1,0 +1,23 @@
+<!-- templates/chat.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="sidebar">
+        <h2>Conversations</h2>
+        <hr style="margin-top: 12px; margin-bottom: 12px;">
+        <ul class="conversation-list">
+            {% for conv in conversations %}
+            <li><a href="{{ url_for('chat_conversation', conversation_id=conv.conversation_id) }}">{{ conv.conversation_name }}</a></li>
+            {% endfor %}
+        </ul>
+        <form action="{{ url_for('start_conversation') }}" method="post">
+            <input type="text" name="conversation_name" placeholder="새 대화 이름">
+            <button type="submit">새 대화 시작</button>
+        </form>
+    </div>
+    <div class="chat-content">
+        <p>대화를 선택하세요.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+<!-- templates/conversation.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-container">
+    <!-- Sidebar with conversation list -->
+    <div class="sidebar">
+        <h3>Conversations</h3>
+        <ul class="conversation-list">
+            {% for convo in conversations %}
+            <li>
+                <a href="{{ url_for('chat_conversation', conversation_id=convo.conversation_id) }}">{{ convo.conversation_name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <form method="post" action="{{ url_for('start_conversation') }}">
+            <input type="text" name="conversation_name" placeholder="New conversation name" required>
+            <button type="submit">Start New Conversation</button>
+        </form>
+    </div>
+
+    <!-- Chat content -->
+    <div class="chat-content">
+        <h2>{{ conversation.conversation_name }}</h2>
+        <div class="messages">
+            {% for msg in messages %}
+            <div class="message {{ msg.sender }}">
+                {% if msg.sender == 'assistant' %}
+                    {% if loop.last and request.method == 'POST' %}
+                        <!-- Last assistant message, streaming effect -->
+                        <div class="assistant-message" id="assistant-message"></div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const markdownContent = `{{ msg.raw_markdown | replace('\n', '\\n') | replace('\r', '') }}`;
+                                const assistantMessageElement = document.getElementById('assistant-message');
+                                let index = 0;
+                                const speed = 30;
+
+                                function typeWriter() {
+                                    if (index < markdownContent.length) {
+                                        assistantMessageElement.textContent += markdownContent.charAt(index);
+                                        index++;
+                                        setTimeout(typeWriter, speed);
+                                    } else {
+                                        // After typing is complete, render markdown
+                                        fetch('{{ url_for("render_markdown") }}', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ markdown: markdownContent })
+                                        })
+                                        .then(response => response.text())
+                                        .then(html => {
+                                            assistantMessageElement.innerHTML = html;
+                                        });
+                                    }
+                                }
+                                typeWriter();
+                            });
+                        </script>
+                    {% else %}
+                        <!-- Previous assistant messages -->
+                        <div class="assistant-message">{{ msg.message | safe }}</div>
+                    {% endif %}
+                {% else %}
+                    <!-- User messages -->
+                    <p>{{ msg.message }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Loading message and spinner -->
+        <div id="loading-message" style="display: none; text-align: center; margin-top: 10px;">
+            Sending...
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Chat input form -->
+        <form method="post" class="chat-form" id="chat-form">
+            <div class="input-container">
+                <textarea name="message" id="message-input" placeholder="Type your message..." required></textarea>
+                <button type="submit" id="send-button">Send</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include JavaScript -->
+<script>
+document.getElementById('chat-form').addEventListener('submit', function() {
+    // Show loading message
+    document.getElementById('loading-message').style.display = 'block';
+    // Disable send button
+    document.getElementById('send-button').disabled = true;
+});
+
+// Allow pressing Enter to submit the form
+document.getElementById('message-input').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        document.getElementById('chat-form').submit();
+    }
+});
+</script>
+{% endblock %}

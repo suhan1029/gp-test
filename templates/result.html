@@ -13,13 +13,50 @@
         </div>
         <img src="{{ url_for('static', filename='images/' + prediction + '.jpg') }}" alt="{{ prediction }}" class="prediction-image">
     </div>
-    <!-- OpenAI API로 생성된 이미지 표시 -->
-    {% if generated_image_url %}
-        <img src="{{ generated_image_url }}" alt="Generated Image" class="generated-image">
-    {% endif %}
-    
+    <div class="explanation">
+        <!-- Container for the streaming explanation -->
+        <div id="explanation-text"></div>
+    </div>
     <div class="button-container">
-        <a href="/personal_color" class="upload-button">Classify another image</a>
+        <a href="/personal_color" class="upload-button no-underline">Classify another image</a>
     </div>
 </div>
+
+<!-- JavaScript for the typewriter effect -->
+<script>
+// Function to display HTML content with a typewriter effect
+function typeWriterHTML(element, htmlContent, speed) {
+    let index = 0;
+    let isTag = false;
+    let text = '';
+
+    function type() {
+        if (index < htmlContent.length) {
+            let char = htmlContent[index];
+            if (char === '<') {
+                isTag = true;
+            }
+            if (isTag) {
+                text += char;
+            } else {
+                text += char;
+                element.innerHTML = text;
+            }
+            if (char === '>') {
+                isTag = false;
+                element.innerHTML = text;
+            }
+            index++;
+            setTimeout(type, speed);
+        }
+    }
+    type();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const explanationHTML = `{{ explanation | safe | replace('\n', '\\n') | replace("'", "\\'") }}`;
+    const explanationElement = document.getElementById('explanation-text');
+    typeWriterHTML(explanationElement, explanationHTML, 30);
+});
+</script>
 {% endblock %}
