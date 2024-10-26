@@ -9,23 +9,30 @@
         <div class="left-section">
             <h2>퍼스널 컬러 분류 AI</h2>
             <br>
-            <p>
-                퍼스널 컬러 이미지를 학습한 EfficientNet-B4 AI 모델이 당신의 퍼스널 컬러를 분류합니다. 사진을 업로드하거나 촬영하여 당신의 퍼스널 컬러를 알아보세요!
-            </p>
+            <br>
+            <p>퍼스널 컬러 이미지를 학습한 EfficientNet-B4 AI 모델이 당신의 퍼스널 컬러를 분류합니다.</p>
+            <br>
+            <p>모델 관련 <a href="https://proceedings.mlr.press/v97/tan19a/tan19a.pdf" target="_blank">논문</a></p>
+            <br>
+            <p>사진을 업로드하거나 촬영하여 당신의 퍼스널 컬러를 알아보세요!</p>
         </div>
         <!-- 수직선 -->
         <div class="vertical-line"></div>
         <!-- 오른쪽 섹션: 이미지 업로드 폼 -->
         <div class="right-section">
-            <h1 class="header">Personal Color Diagnosis</h1>
-            <p class="subheader">Upload your image or take a photo for diagnosis</p>
+            <h1 class="header">퍼스널 컬러 진단</h1>
+            <p class="subheader">이미지를 선택하거나 사진을 찍으시오</p>
             <form id="upload-form" action="/personal_color" method="post" enctype="multipart/form-data" onsubmit="return checkFileUpload(event)">
                 <div class="button-and-image-container">
                     <div class="button-group">
                         <label for="file-input" class="file-input-label">
-                            Choose an image
+                            이미지 선택
                         </label>
                         <button type="button" id="start-camera" class="file-input-label">사진 찍기</button>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
                         <button type="submit" class="upload-button">진단하기</button>
                     </div>
                     <div class="image-preview-container">
@@ -39,10 +46,15 @@
                 <span id="file-name"></span>
                 <div id="camera-container" style="display:none;">
                     <video id="video" width="640" height="480" autoplay></video>
-                    <button type="button" id="capture-photo">Capture Photo</button>
+                    <button type="button" id="capture-photo">사진 캡쳐</button>
                 </div>
                 <canvas id="canvas" style="display:none;"></canvas>
             </form>
+            <!-- 로딩 메시지 및 스피너 -->
+            <div id="loading-message" style="display: none; text-align: center; margin-top: 20px;">
+                이미지 분석 중입니다. 잠시만 기다려주세요...
+                <div class="spinner"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -166,5 +178,14 @@
         }
         return true;
     }
+
+    document.getElementById('upload-form').addEventListener('submit', function(event) {
+    // 로딩 메시지 표시 및 버튼 비활성화
+    document.getElementById('loading-message').style.display = 'block';
+    document.getElementById('submit-button').disabled = true;
+
+    // 파일 입력 비활성화
+    document.getElementById('file-input').disabled = true;
+    });
 </script>
 {% endblock %}
