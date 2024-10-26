@@ -1,15 +1,13 @@
-from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, Response, stream_with_context, g
 import mysql.connector
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 from dotenv import load_dotenv
 import os
-import shutil
 from openai import OpenAI
 import logging
 from werkzeug.utils import secure_filename
-from io import BytesIO
 import uuid
 import markdown
 import bleach
@@ -32,6 +30,21 @@ if not client.api_key:
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", 'your_secret_key')  # 보안을 위해 환경 변수로 관리하세요.
 
+def get_db():
+    if 'db' not in g:
+        g.db = mysql.connector.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASSWORD", ""),
+            database=os.getenv("DB_NAME", "user_info")
+        )
+    return g.db
+
+@app.teardown_appcontext
+def close_db(exception):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
 # 세션을 서버 측 파일 시스템에 저장하도록 설정
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
@@ -47,14 +60,6 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
-
-# MySQL 데이터베이스 연결 설정
-db = mysql.connector.connect(
-    host=os.getenv("DB_HOST", "localhost"),
-    user=os.getenv("DB_USER", "root"),           # MySQL 사용자 이름
-    password=os.getenv("DB_PASSWORD", ""),       # MySQL 비밀번호
-    database=os.getenv("DB_NAME", "user_info")   # 사용하시는 데이터베이스 이름으로 변경하세요.
-)
 
 # 로그인 필요 데코레이터
 def login_required(f):
@@ -125,6 +130,7 @@ def register():
 
         hashed_password = generate_password_hash(password)
 
+        db = get_db()
         cursor = db.cursor()
         sql = "INSERT INTO users (user_id, password, email) VALUES (%s, %s, %s)"
         cursor.execute(sql, (user_id, hashed_password, email))
@@ -138,6 +144,7 @@ def register():
 @app.route('/check_id', methods=['POST'])
 def check_id():
     user_id = request.form['user_id']
+    db = get_db()
     cursor = db.cursor()
     sql = "SELECT * FROM users WHERE user_id = %s"
     cursor.execute(sql, (user_id,))
@@ -155,6 +162,7 @@ def login():
         user_id = request.form['user_id']
         password = request.form['password']
 
+        db = get_db()
         cursor = db.cursor()
         sql = "SELECT password FROM users WHERE user_id = %s"
         cursor.execute(sql, (user_id,))
@@ -195,11 +203,12 @@ def personal_color():
 
             # 이미지 파일 저장
             filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+            file.seek(0)  # 파일 포인터를 처음으로 이동
             file.save(os.path.join(UPLOAD_FOLDER, filename))
 
-            # OpenAI API를 사용하여 설명 생성
-            prompt = f"사용자의 얼굴 이미지에서 '{prediction}' 퍼스널 컬러가 나왔습니다. '{prediction}' 퍼스널 컬러의 특징과 사용자의 이미지에서 그 퍼스널 컬러가 나온 이유를 간단하게 설명해줘."
-
+            # OpenAI API를 사용하여 설명, 이미지 생성
+            prompt = f"사용자의 얼굴 이미지에서 '{prediction}' 퍼스널 컬러가 나왔습니다. '{prediction}' 퍼스널 컬러의 특징과 사용자의 이미지에서 그 퍼스널 컬러가 나온 이유를 간단하게 설명해주고 어떤 색깔의 옷을 추천하는지도 알려줘."
+            prompt2 = f"two shirts and two trousers whose personal color is {prediction}, white background, realistic"
             try:
                 completion = client.chat.completions.create(
                     model="gpt-4o",
@@ -213,14 +222,23 @@ def personal_color():
                 allowed_tags = ['p', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'code', 'pre', 'blockquote']
                 explanation_html = bleach.clean(explanation_html, tags=allowed_tags, strip=True)
 
+                image_response = client.images.generate(
+                    prompt=prompt2,
+                    n=1,
+                    size="1024x1024"
+                )
+                image_url = image_response.data[0].url
+
             except Exception as e:
                 error_message = f'이미지 분석 중 오류가 발생했습니다: {str(e)}'
                 flash(error_message)
                 logging.error(error_message)
                 explanation_markdown = "죄송합니다. 이미지를 분석할 수 없습니다."
                 explanation_html = "<p>죄송합니다. 이미지를 분석할 수 없습니다.</p>"
+                image_url = None
 
             # 예측 결과 및 설명을 데이터베이스에 저장, 데이터베이스에 저장할 때는 Markdown 원본을 저장
+            db = get_db()
             cursor = db.cursor()
             sql = "INSERT INTO predictions (user_id, prediction, prediction_time, img, explains) VALUES (%s, %s, NOW(), %s, %s)"
             cursor.execute(sql, (session['user_id'], prediction, filename, explanation_markdown))
@@ -228,7 +246,7 @@ def personal_color():
             cursor.close()
 
             # 템플릿 렌더링 시 HTML 변환된 설명 전달
-            return render_template('result.html', prediction=prediction, user_id=session.get('user_id'), explanation=explanation_html)
+            return render_template('result.html', prediction=prediction, user_id=session.get('user_id'), explanation=explanation_html, image_url=image_url)
         else:
             flash('허용되지 않는 파일 형식입니다.')
             return redirect(request.url)
@@ -244,6 +262,7 @@ def allowed_file(filename):
 @app.route('/history')
 @login_required
 def history():
+    db = get_db()
     cursor = db.cursor(dictionary=True)
     sql = "SELECT predict_id, prediction, prediction_time, img, explains FROM predictions WHERE user_id = %s ORDER BY prediction_time DESC"
     cursor.execute(sql, (session['user_id'],))
@@ -264,6 +283,7 @@ def history():
 @app.route('/chat', methods=['GET', 'POST'])
 @login_required
 def chat():
+    db = get_db()
     cursor = db.cursor(dictionary=True)
     # 사용자별 대화 목록 가져오기
     sql = "SELECT * FROM conversations WHERE user_id = %s ORDER BY created_at DESC"
@@ -287,6 +307,7 @@ def render_markdown():
 @login_required
 def start_conversation():
     conversation_name = request.form.get('conversation_name', 'New Conversation')
+    db = get_db()
     cursor = db.cursor()
     sql = "INSERT INTO conversations (user_id, conversation_name) VALUES (%s, %s)"
     cursor.execute(sql, (session['user_id'], conversation_name))
@@ -299,6 +320,7 @@ def start_conversation():
 @app.route('/chat/<int:conversation_id>', methods=['GET', 'POST'])
 @login_required
 def chat_conversation(conversation_id):
+    db = get_db()
     cursor = db.cursor(dictionary=True)
     sql = "SELECT * FROM conversations WHERE conversation_id = %s AND user_id = %s"
     cursor.execute(sql, (conversation_id, session['user_id']))
@@ -318,7 +340,7 @@ def chat_conversation(conversation_id):
     cursor.close()
 
     if request.method == 'POST':
-        user_message = request.form['message']
+        user_message = request.json.get('message')  # JSON에서 메시지 가져오기
         # 사용자 메시지를 저장
         cursor = db.cursor()
         sql = "INSERT INTO messages (conversation_id, sender, message) VALUES (%s, %s, %s)"
@@ -338,44 +360,106 @@ def chat_conversation(conversation_id):
         # 메시지 목록 다시 가져오기
         messages = get_conversation_messages(conversation_id)
 
-        return render_template('conversation.html', user_id=session.get('user_id'), conversation=conversation, messages=messages, conversations=conversations, assistant_response_markdown=assistant_response_markdown)
+        return render_template('conversation_messages.html', messages=messages)
     else:
         return render_template('conversation.html', user_id=session.get('user_id'), conversation=conversation, messages=messages, conversations=conversations)
 
 def get_conversation_messages(conversation_id):
+    db = get_db()
     cursor = db.cursor(dictionary=True)
-    sql = "SELECT sender, message, raw_markdown FROM messages WHERE conversation_id = %s ORDER BY created_at ASC"
+    sql = "SELECT sender, message FROM messages WHERE conversation_id = %s ORDER BY created_at ASC"
     cursor.execute(sql, (conversation_id,))
     messages = cursor.fetchall()
     cursor.close()
     return messages
 
-def get_assistant_response(messages):
+def clean_markdown(text):
+    import re
+    # 번호와 내용 사이의 불필요한 줄바꿈 제거
+    text = re.sub(r'(\d+\.)\s*\n\s*', r'\1 ', text)
+    # 여러 개의 연속된 빈 줄을 하나의 빈 줄로 축소
+    text = re.sub(r'\n{2,}', '\n\n', text)
+    # 불필요한 공백 제거
+    text = re.sub(r'[ \t]+$', '', text, flags=re.MULTILINE)
+    return text
+
+def get_assistant_response(messages, conversation_id):
     # 메시지 포맷 구성
-    formatted_messages = []
-    for msg in messages:
-        role = msg['sender']
-        content = msg['message']
-        formatted_messages.append({"role": role, "content": content})
+    formatted_messages = [{"role": msg['sender'], "content": msg['message']} for msg in messages]
+
+    if not formatted_messages:
+        # 메시지가 없는 경우 초기 시스템 메시지 추가
+        formatted_messages.append({"role": "system", "content": "당신은 퍼스널 컬러 전문가입니다."})
 
     try:
+        # OpenAI API 호출
         response = client.chat.completions.create(
-            model="gpt-4o",  # 또는 사용 가능한 모델 지정
-            messages=formatted_messages
+            model="gpt-4o",  # 사용 가능한 모델 지정
+            messages=formatted_messages,
+            stream=True,
         )
-        assistant_response_markdown = response.choices[0].message.content.strip()
+        def generate():
+            assistant_response_markdown = ''
+            for chunk in response:
+                delta = chunk.choices[0].delta.content or ""
+                content = delta
+                if delta:
+                    assistant_response_markdown += content
+                    # SSE 형식으로 데이터 전송
+                    yield f"data: {content}\n\n"
+            
+            # 응답 완료 후 종료 신호 전송
+            yield "event: done\ndata: end\n\n"
 
-        # Markdown을 HTML로 변환
-        assistant_response_html = markdown.markdown(assistant_response_markdown)
+            # 응답 완료 후 메시지 저장
+            assistant_response_markdown = clean_markdown(assistant_response_markdown)
+            assistant_response_html = markdown.markdown(assistant_response_markdown)
+            allowed_tags = ['p', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'code', 'pre', 'blockquote']
+            assistant_response_html = bleach.clean(assistant_response_html, tags=allowed_tags, strip=True)
 
-        # Sanitize HTML
-        allowed_tags = ['p', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'code', 'pre', 'blockquote']
-        assistant_response_html = bleach.clean(assistant_response_html, tags=allowed_tags, strip=True)
-        return assistant_response_html, assistant_response_markdown
-    
+            # 어시스턴트 응답 저장
+            db = get_db()
+            cursor = db.cursor()
+            sql = "INSERT INTO messages (conversation_id, sender, message, raw_markdown) VALUES (%s, %s, %s, %s)"
+            cursor.execute(sql, (conversation_id, 'assistant', assistant_response_html, assistant_response_markdown))
+            db.commit()
+            cursor.close()
+
+        return Response(stream_with_context(generate()), mimetype='text/event-stream')
+
     except Exception as e:
         logging.error(f'OpenAI API 호출 중 오류 발생: {str(e)}')
-        return "죄송합니다. 응답을 생성할 수 없습니다."
+        # 상태 메시지를 ASCII로 제한
+        return Response("죄송합니다. 응답을 생성할 수 없습니다.", status=500, mimetype='text/plain')
+
+@app.route('/stream_response/<int:conversation_id>', methods=['GET'])
+@login_required
+def stream_response(conversation_id):
+    messages = get_conversation_messages(conversation_id)
+    return get_assistant_response(messages, conversation_id)
+
+@app.route('/send_message/<int:conversation_id>', methods=['POST'])
+@login_required
+def send_message(conversation_id):
+    data = request.get_json()
+    user_message = data.get('message')
+
+    # 사용자 메시지를 데이터베이스에 저장
+    db = get_db()
+    cursor = db.cursor()
+    sql = "INSERT INTO messages (conversation_id, sender, message) VALUES (%s, %s, %s)"
+    cursor.execute(sql, (conversation_id, 'user', user_message))
+    db.commit()
+    cursor.close()
+
+    return jsonify({'status': 'success'})
+
+@app.route('/chat/<int:conversation_id>/messages')
+@login_required
+def get_messages(conversation_id):
+    messages = get_conversation_messages(conversation_id)
+    return render_template('conversation_messages.html', messages=messages)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
