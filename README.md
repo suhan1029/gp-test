@@ -21,6 +21,7 @@
 - API 키를 생성하기 위해서는 ChatGPT가 아닌 OpenAI 사이트로 들어가야 합니다.
 
 - 참고한 사이트 - https://platform.openai.com/docs/guides/images/usage, https://github.com/openai/openai-python
+- 이미지 생성할 때 프롬프트에 사람이 들어가면 프롬프트를 무시해버립니다.
 - ~~망할 GPT o1-preview가 API 사용 방법을 잘 모릅니다.~~
 - ~~o1-preview 피셜 GPT-4o는 존재하지 않습니다~~
 
