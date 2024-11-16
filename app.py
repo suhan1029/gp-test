@@ -11,6 +11,8 @@ from werkzeug.utils import secure_filename
 import uuid
 import markdown
 import bleach
+import base64
+import time
 
 # AI 모델 관련 임포트
 from PIL import Image
@@ -57,6 +59,12 @@ Session(app)
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+# 허용된 파일 형식
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -438,6 +446,7 @@ def stream_response(conversation_id):
     messages = get_conversation_messages(conversation_id)
     return get_assistant_response(messages, conversation_id)
 
+
 @app.route('/send_message/<int:conversation_id>', methods=['POST'])
 @login_required
 def send_message(conversation_id):
@@ -454,11 +463,62 @@ def send_message(conversation_id):
 
     return jsonify({'status': 'success'})
 
+
 @app.route('/chat/<int:conversation_id>/messages')
 @login_required
 def get_messages(conversation_id):
     messages = get_conversation_messages(conversation_id)
     return render_template('conversation_messages.html', messages=messages)
+
+@app.route('/vision_ai')
+@login_required
+def vision_ai():
+    return render_template('vision_ai.html', user_id=session.get('user_id'))
+
+@app.route('/vision_ai_stream', methods=['POST'])
+@login_required
+def vision_ai_stream():
+    try:
+        file = request.files.get('file')
+        prompt = request.form.get('prompt', "이미지에 있는 내용을 설명해줘.")  # 기본 프롬프트 설정
+
+        if not file or not allowed_file(file.filename):
+            return jsonify({'error': '허용되지 않는 파일 형식입니다.'}), 400
+
+        # 파일 MIME 타입 추출
+        mime_type = f"image/{file.filename.rsplit('.', 1)[1].lower()}"
+
+        # Base64 변환
+        base64_image = base64.b64encode(file.read()).decode('utf-8')
+
+        # OpenAI API 호출
+        def generate_stream():
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "user", "content": prompt},
+                    {"role": "user", "content": [
+                        {'type':'text', 'text': prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:{mime_type};base64,{base64_image}"},
+                        },
+                    ]},
+                
+                ],
+                temperature=1.0,
+                stream=True,
+            )
+            for chunk in response:
+                content = chunk.choices[0].delta.content or ""
+                if content:
+                    yield content
+
+        return Response(generate_stream(), mimetype='text/plain')
+
+    except Exception as e:
+        return Response(f"오류 발생: {str(e)}", status=500, mimetype='text/plain')
+
 
 
 if __name__ == '__main__':
